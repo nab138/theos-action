@@ -35,13 +35,13 @@ runs:
         key: ${{ runner.os }}-${{ steps.information.outputs.heads }}-theos
         
     - name: Install ldid and make
-      if: steps.information.outputs.heads >= 20
+      if: steps.information.outputs.darwin_version >= 20
       uses: beerpiss/procursus-action@v1.2
       with:
         packages: ldid make
         
     - name: Install ldid and make
-      if: steps.information.outputs.heads < 20
+      if: steps.information.outputs.darwin_version < 20
       shell: bash
       run: |
         brew install ldid make
