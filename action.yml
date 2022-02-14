@@ -14,40 +14,55 @@ inputs:
     description: 'Where to clone the iOS SDKs from (git URL)'
     required: false
     default: 'https://github.com/theos/sdks'
+  cache:
+    description: 'Cache Theos installation for faster installation'
+    required: false
+    default: true
 runs:
   using: "composite"
   steps:
+    - id: verify-cache
+      run: |
+        echo "::set-output name=heads::`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`-`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`"
+    
+    - uses: actions/cache@v2
+      id: theos-cache
+      if: inputs.cache == 'true'
+      with:
+        path: /usr/local/opt/__theos_cache
+        key: ${{ runner.os }}-${{ steps.verify-cache.outputs.heads }}-theos
+    
     - name: prepare environment
       shell: bash
       run: |
         brew install ldid make
         echo "THEOS=$GITHUB_WORKSPACE/${{ inputs.theos-dir }}" >> $GITHUB_ENV
         PATH="/usr/local/opt/make/libexec/gnubin:$PATH" >> $GITHUB_ENV
-        echo "Succesfully installed tools!"
 
-    - name: get theos
+    - name: get theos and sdks (uncached)
+      if: inputs.cache != 'true' || steps.theos-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        if [ ! -d "${{ github.workspace }}/${{ inputs.theos-dir }}" ]; then
-          git clone ${{ inputs.theos-src }} ${{ github.workspace }}/${{ inputs.theos-dir }} --recursive
-          echo "Theos successfully obtained!"
-        else 
-          echo "Theos already cached, skipping..."
-        fi
+        git clone ${{ inputs.theos-src }} ${{ github.workspace }}/${{ inputs.theos-dir }} --recursive
+        cd ${{ github.workspace }}/${{ inputs.theos-dir }}/sdks
+        curl -sLO ${{ inputs.theos-sdks }}/archive/master.zip
+        TMP=$(mktemp -d)
+        7z x master.zip -o$TMP
+        mv $TMP/*-master/*.sdk $THEOS/sdks
+        rm -r master.zip $TMP
 
-    - name: get sdks
+    - name: restore theos and sdks from cache
+      if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        if [ ! -d "${{ github.workspace }}/${{ inputs.theos-dir }}/sdks" ]; then
-          cd ${{ github.workspace }}/${{ inputs.theos-dir }}/sdks
-          curl -sLO ${{ inputs.theos-sdks }}/archive/master.zip
-          TMP=$(mktemp -d)
-          7z x master.zip -o$TMP
-          mv $TMP/*-master/*.sdk $THEOS/sdks
-          rm -r master.zip $TMP
-        else
-          echo "Theos SDKs already cached, skipping..."
-        fi
+        sudo rsync -aP /usr/local/opt/__theos_cache/${{ inputs.theos-dir }} ${{ github.workspace }}
+    
+    - name: cache theos
+      if: inputs.cache == 'true'
+      shell: bash
+      run: |
+        sudo rsync -aP ${{ github.workspace }}/${{ inputs.theos-dir }} /usr/local/opt/__theos_cache/
+      
 
 branding:
   icon: download-cloud
