@@ -8,6 +8,8 @@ _Use Theos in your GitHub Actions to build iOS tweaks, even without owning a Mac
 
 ## What's new
 
+v1.1: Added Procursus support for macOS 11 runners. This should shave off about 10-20 seconds of setup time.
+
 v1: Initial release. Only MacOS support, and only supports 1 SDK repo (although you can just run it a few times or do it yourself). It works, but it is probably not very efficient.
 
 ## Usage
