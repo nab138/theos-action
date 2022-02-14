@@ -93,7 +93,7 @@ runs:
       if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aP /usr/local/opt/__theos_sdks_cache/${{ inputs.theos-dir }}/sdks ${{ github.workspace }}/${{ inputs.theos-dir }}
+        sudo rsync -aP /usr/local/opt/__theos_sdks_cache/sdks ${{ github.workspace }}/${{ inputs.theos-dir }}
    
     - name: cache sdks
       if: inputs.cache == 'true'
