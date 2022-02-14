@@ -27,6 +27,7 @@ runs:
         echo "::set-output name=theos::`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`"
         echo "::set-output name=theos-sdks::`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`"
         echo "::set-output name=darwin_version::`uname -r | cut -d'.' -f1 | tr -d '\n'`"
+        echo "::set-output name=bootstrapped_procursus::`if which apt-get 2>&1 >/dev/null; then echo 'true'; else echo 'false'; fi`"
         
     - uses: actions/cache@v2
       id: theos-cache
@@ -43,16 +44,20 @@ runs:
         key: ${{ runner.os }}-${{ steps.information.outputs.theos-sdks }}-theos
         
     - name: Install ldid and make
-      if: steps.information.outputs.darwin_version >= 20
+      if: steps.information.outputs.darwin_version >= 20 && steps.information.outputs.bootstrapped_procursus != 'true'
       uses: beerpiss/procursus-action@v1.2
       with:
         packages: ldid make
         
     - name: Install ldid and make
-      if: steps.information.outputs.darwin_version < 20
+      if: steps.information.outputs.darwin_version < 20 || steps.information.outputs.bootstrapped_procursus == 'true'
       shell: bash
       run: |
-        brew install ldid make
+        if $(( ${{ steps.information.outputs.darwin_version }} >= 20 )); then
+          sudo apt-get install -y ldid make
+        else
+          brew install ldid make
+        fi
     
     - name: prepare environment
       shell: bash
