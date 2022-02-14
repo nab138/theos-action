@@ -21,22 +21,34 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: verify-cache
+    - id: information
       shell: bash
       run: |
         echo "::set-output name=heads::`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`-`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`"
-    
+        echo "::set-output name=darwin_version::`uname -r | cut -d'.' -f1 | tr -d '\n'`"
+        
     - uses: actions/cache@v2
       id: theos-cache
       if: inputs.cache == 'true'
       with:
         path: /usr/local/opt/__theos_cache
-        key: ${{ runner.os }}-${{ steps.verify-cache.outputs.heads }}-theos
+        key: ${{ runner.os }}-${{ steps.information.outputs.heads }}-theos
+        
+    - name: Install ldid and make
+      if: steps.information.outputs.heads >= 20
+      uses: beerpiss/procursus-action@v1.2
+      with:
+        packages: ldid make
+        
+    - name: Install ldid and make
+      if: steps.information.outputs.heads < 20
+      shell: bash
+      run: |
+        brew install ldid make
     
     - name: prepare environment
       shell: bash
       run: |
-        brew install ldid make
         echo "THEOS=$GITHUB_WORKSPACE/${{ inputs.theos-dir }}" >> $GITHUB_ENV
         PATH="/usr/local/opt/make/libexec/gnubin:$PATH" >> $GITHUB_ENV
 
