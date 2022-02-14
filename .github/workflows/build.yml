@@ -1,0 +1,29 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        repository: Randomblock1/FleetsBGone
+        submodules: true
+        
+    - name: Prepare Theos
+      # Don't use @main in production, this repo is specifically for testing it.
+      uses: beerpiss/theos-action@main
+      
+    - name: Build package
+      run: |
+        rm -f packages/*
+        make package FINALPACKAGE=1
+ 
+    - name: Upload package
+      uses: actions/upload-artifact@v2.2.0
+      with:
+        name: 'Package'
+        path: ${{ github.workspace }}/packages/*.deb
