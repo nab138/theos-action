@@ -44,7 +44,7 @@ runs:
         
     - name: Install ldid and make
       if: steps.information.outputs.darwin_version >= 20
-      uses: beerpiss/procursus-action@v1.3
+      uses: beerpiss/procursus-action@v1
       with:
         packages: ldid make
         
