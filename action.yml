@@ -18,6 +18,14 @@ inputs:
     description: 'Cache Theos installation for faster installation'
     required: false
     default: true
+  cache-dir-theos:
+    description: 'Cache location for Theos'
+    required: false
+    default: /usr/local/opt/__theos_cache
+  cache-dir-sdks:
+    description: 'Cache location for SDKs'
+    required: false
+    default: /usr/local/opt/__theos_sdks_cache
 runs:
   using: "composite"
   steps:
@@ -32,14 +40,14 @@ runs:
       id: theos-cache
       if: inputs.cache == 'true'
       with:
-        path: /usr/local/opt/__theos_cache
+        path: ${{ inputs.cache-dir-theos }}
         key: ${{ runner.os }}-${{ steps.information.outputs.theos }}-theos
     
     - uses: actions/cache@v2
       id: theos-sdks-cache
       if: inputs.cache == 'true'
       with:
-        path: /usr/local/opt/__theos_sdks_cache
+        path: ${{ inputs.cache-dir-sdks }}
         key: ${{ runner.os }}-${{ steps.information.outputs.theos-sdks }}-theos
         
     - name: Install ldid and make
@@ -70,13 +78,13 @@ runs:
       if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aP /usr/local/opt/__theos_cache/${{ inputs.theos-dir }} ${{ github.workspace }}
+        sudo rsync -aP ${{ inputs.cache-dir-theos }}/${{ inputs.theos-dir }} ${{ github.workspace }}
     
     - name: cache theos
       if: inputs.cache == 'true'
       shell: bash
       run: |
-        sudo rsync -aP ${{ github.workspace }}/${{ inputs.theos-dir }} /usr/local/opt/__theos_cache/
+        sudo rsync -aP ${{ github.workspace }}/${{ inputs.theos-dir }} ${{ inputs.cache-dir-theos }}/
 
     - name: get sdks (uncached)
       if: inputs.cache != 'true' || steps.theos-sdks-cache.outputs.cache-hit != 'true'
@@ -93,13 +101,13 @@ runs:
       if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aP /usr/local/opt/__theos_sdks_cache/sdks ${{ github.workspace }}/${{ inputs.theos-dir }}
+        sudo rsync -aP ${{ inputs.cache-dir-sdks }}/sdks ${{ github.workspace }}/${{ inputs.theos-dir }}
    
     - name: cache sdks
       if: inputs.cache == 'true'
       shell: bash
       run: | 
-        sudo rsync -aP ${{ github.workspace }}/${{ inputs.theos-dir }}/sdks /usr/local/opt/__theos_sdks_cache/
+        sudo rsync -aP ${{ github.workspace }}/${{ inputs.theos-dir }}/sdks ${{ inputs.cache-dir-sdks }}/
         
     
       
