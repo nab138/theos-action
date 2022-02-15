@@ -16,8 +16,8 @@ v1: Initial release. Only MacOS support, and only supports 1 SDK repo (although 
 
 MAKE SURE YOU'RE USING THIS WITH A MACOS RUNNER!!! Linux support may be added if there is enough demand, but for now only Mac is supported.
 
-```bash
-- uses: beerpiss/theos-action@v1  # The v1 tag refers to the latest update of major version 1 (currently 1.1.4)
+```yaml
+- uses: beerpiss/theos-action@v1  # The v1 tag refers to the latest update of major version 1 (currently 1.2.0)
   with:
     # This is where Theos is stored, relative to the runner workspace.
     # By default, it's just theos.
@@ -29,6 +29,16 @@ MAKE SURE YOU'RE USING THIS WITH A MACOS RUNNER!!! Linux support may be added if
     # By default, it's https://github.com/theos/sdks.
     # However, you'll probably want to set this manually if you want to compile using newer frameworks, like iOS 13 or 14.
     theos-sdks: ''
+    # Cache Theos and its SDKs. They are only fetched again when a new commit is pushed to their repos
+    # By default, the value is boolean true.
+    cache:
+    # Cache location for Theos
+    # Default: /usr/local/opt/__theos_cache
+    cache-dir-theos:
+    # Cache location for SDKs
+    # Default: /usr/local/opt/__theos_sdks_cache
+    cache-dir-sdks:
+    
 ```
 
 ## Example
