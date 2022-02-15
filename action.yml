@@ -78,13 +78,13 @@ runs:
       if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aP ${{ inputs.cache-dir-theos }}/${{ inputs.theos-dir }} ${{ github.workspace }}
+        sudo rsync -aAXEWSlHh --info=progress1 --no-compress ${{ inputs.cache-dir-theos }}/${{ inputs.theos-dir }} ${{ github.workspace }}
     
     - name: cache theos
       if: inputs.cache == 'true'
       shell: bash
       run: |
-        sudo rsync -aP ${{ github.workspace }}/${{ inputs.theos-dir }} ${{ inputs.cache-dir-theos }}/
+        sudo rsync -aAXESlHh --info=progress1 --no-compress ${{ github.workspace }}/${{ inputs.theos-dir }} ${{ inputs.cache-dir-theos }}/
 
     - name: get sdks (uncached)
       if: inputs.cache != 'true' || steps.theos-sdks-cache.outputs.cache-hit != 'true'
@@ -101,13 +101,13 @@ runs:
       if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aP ${{ inputs.cache-dir-sdks }}/sdks ${{ github.workspace }}/${{ inputs.theos-dir }}
+        sudo rsync -aAXEWSlHh --info=progress1 --no-compress ${{ inputs.cache-dir-sdks }}/sdks ${{ github.workspace }}/${{ inputs.theos-dir }}
    
     - name: cache sdks
       if: inputs.cache == 'true'
       shell: bash
       run: | 
-        sudo rsync -aP ${{ github.workspace }}/${{ inputs.theos-dir }}/sdks ${{ inputs.cache-dir-sdks }}/
+        sudo rsync -aAXESlHh --info=progress1 --no-compress ${{ github.workspace }}/${{ inputs.theos-dir }}/sdks ${{ inputs.cache-dir-sdks }}/
         
     
       
