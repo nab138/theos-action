@@ -3,9 +3,9 @@ description: 'Install Theos and prepare it for building projects'
 author: 'beerpsi'
 inputs:
   theos-dir:
-    description: 'Where to install Theos (relative to the repo workspace itself)'
+    description: 'Where to install Theos'
     required: false
-    default: theos
+    default: ${{ github.workspace }}/theos
   theos-src:
     description: 'Where to clone Theos itself from (git URL)'
     required: false
@@ -50,11 +50,11 @@ runs:
         path: ${{ inputs.cache-dir-sdks }}
         key: ${{ runner.os }}-${{ steps.information.outputs.theos-sdks }}-theos
         
-    - name: Install ldid and make
+    - name: Install Theos dependencies
       if: steps.information.outputs.darwin_version >= 20
       uses: beerpiss/procursus-action@v1
       with:
-        packages: ldid make
+        packages: theos-dependencies
         
     - name: Install ldid and make
       if: steps.information.outputs.darwin_version < 20
@@ -65,49 +65,53 @@ runs:
     - name: prepare environment
       shell: bash
       run: |
-        echo "THEOS=$GITHUB_WORKSPACE/${{ inputs.theos-dir }}" >> $GITHUB_ENV
-        PATH="/usr/local/opt/make/libexec/gnubin:$PATH" >> $GITHUB_ENV
+        echo "THEOS=${{ inputs.theos-dir }}" >> $GITHUB_ENV
+        
+        if (( ${{ steps.information.outputs.darwin_version }} < 20 )); then
+          echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
+        fi
+          
 
     - name: get theos (uncached)
       if: inputs.cache != 'true' || steps.theos-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        git clone --recursive ${{ inputs.theos-src }} ${{ github.workspace }}/${{ inputs.theos-dir }}
+        git clone --recursive ${{ inputs.theos-src }} ${{ inputs.theos-dir }}
 
     - name: restore theos from cache
       if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-theos }}/${{ inputs.theos-dir }} ${{ github.workspace }}
+        sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-theos }}/${{ inputs.theos-dir }} ${{ inputs.theos-dir }}
     
     - name: cache theos
       if: inputs.cache == 'true'
       shell: bash
       run: |
-        sudo rsync -alHh --inplace ${{ github.workspace }}/${{ inputs.theos-dir }} ${{ inputs.cache-dir-theos }}/
+        sudo rsync -alHh --inplace ${{ inputs.theos-dir }} ${{ inputs.cache-dir-theos }}/
 
     - name: get sdks (uncached)
       if: inputs.cache != 'true' || steps.theos-sdks-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        cd ${{ github.workspace }}/${{ inputs.theos-dir }}/sdks
-        curl -sLO ${{ inputs.theos-sdks }}/archive/master.zip
+        cd ${{ inputs.theos-dir }}/sdks
+        curl -sLO ${{ inputs.theos-sdks }}/archive/master.tar.gz
         TMP=$(mktemp -d)
-        7z x master.zip -o$TMP
-        mv $TMP/*-master/*.sdk $THEOS/sdks
-        rm -r master.zip $TMP
+        tar -xf master.tar.gz -C $TMP
+        mv $TMP/*-master/*.sdk ${{ inputs.theos-dir }}/sdks
+        rm -r master.tar.gz $TMP
     
     - name: restore theos sdks from cache
       if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-sdks }}/sdks ${{ github.workspace }}/${{ inputs.theos-dir }}
+        sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-sdks }}/sdks /${{ inputs.theos-dir }}
    
     - name: cache sdks
       if: inputs.cache == 'true'
       shell: bash
       run: | 
-        sudo rsync -alHh --inplace ${{ github.workspace }}/${{ inputs.theos-dir }}/sdks ${{ inputs.cache-dir-sdks }}/
+        sudo rsync -alHh --inplace ${{ inputs.theos-dir }}/sdks ${{ inputs.cache-dir-sdks }}/
         
     
       
