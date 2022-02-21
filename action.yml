@@ -34,6 +34,7 @@ runs:
       run: |
         echo "::set-output name=theos::`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`"
         echo "::set-output name=theos-sdks::`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`"
+        echo "::set-output name=theos-dir-basename::`basename ${{ inputs.theos-dir }}`"
         echo "::set-output name=darwin_version::`uname -r | cut -d'.' -f1 | tr -d '\n'`"
         
     - uses: actions/cache@v2
@@ -82,7 +83,7 @@ runs:
       if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-theos }}/${{ inputs.theos-dir }} ${{ inputs.theos-dir }}
+        sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-theos }}/${{ steps.information.outputs.theos-dir-basename }} ${{ inputs.theos-dir }}
     
     - name: cache theos
       if: inputs.cache == 'true'
@@ -105,7 +106,7 @@ runs:
       if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true'
       shell: bash
       run: |
-        sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-sdks }}/sdks /${{ inputs.theos-dir }}
+        sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-sdks }}/sdks ${{ inputs.theos-dir }}
    
     - name: cache sdks
       if: inputs.cache == 'true'
