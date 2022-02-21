@@ -54,9 +54,9 @@ runs:
       if: steps.information.outputs.darwin_version >= 20
       uses: beerpiss/procursus-action@v1
       with:
-        packages: theos-dependencies
+        packages: ldid make
         
-    - name: Install ldid and make
+    - name: Install Theos dependencies
       if: steps.information.outputs.darwin_version < 20
       shell: bash
       run: |
