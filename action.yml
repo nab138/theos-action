@@ -91,11 +91,11 @@ runs:
 
     - name: get theos (uncached)
       if: inputs.cache != 'true' || steps.theos-cache.outputs.cache-hit != 'true'
-      uses: actions/checkout@v2
-      with:
-        repository: ${{ inputs.theos-src }}
-        ref: ${{ inputs.theos-ref }}
-        submodules: recursive
+      shell: bash
+      run: |
+        git clone --recursive ${{ inputs.theos-src }} ${{ inputs.theos-dir }}
+        cd ${{ inputs.theos-dir }}
+        git -C ${{ inputs.theos-dir }} checkout $(git -C ${{ inputs.theos-dir }} describe ${{ inputs.theos-ref }})
 
     - name: restore theos from cache
       if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'

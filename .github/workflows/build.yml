@@ -16,6 +16,8 @@ jobs:
     - name: Prepare Theos
       # Don't use @main in production, this repo is specifically for testing it.
       uses: beerpiss/theos-action@main
+      with:
+        cache: false
       
     - name: Build package
       run: |
