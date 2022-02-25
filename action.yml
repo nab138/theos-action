@@ -116,9 +116,9 @@ runs:
         cd ${{ inputs.theos-dir }}/sdks
         curl -sLO ${{ inputs.theos-sdks }}/archive/${{ inputs.theos-sdks-ref }}.tar.gz
         TMP=$(mktemp -d)
-        tar -xf master.tar.gz -C $TMP
-        mv $TMP/*-master/*.sdk ${{ inputs.theos-dir }}/sdks
-        rm -r master.tar.gz $TMP
+        tar -xf ${{ inputs.theos-sdks-ref }}.tar.gz -C $TMP
+        mv $TMP/*-${{ inputs.theos-sdks-ref }}/*.sdk ${{ inputs.theos-dir }}/sdks
+        rm -r ${{ inputs.theos-sdks-ref }}.tar.gz $TMP
     
     - name: restore theos sdks from cache
       if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true'
