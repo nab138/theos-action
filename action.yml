@@ -10,10 +10,18 @@ inputs:
     description: 'Where to clone Theos itself from (git URL)'
     required: false
     default: 'https://github.com/theos/theos'
+  theos-ref:
+    description: 'The branch, tag or SHA to clone Theos from'
+    required: false
+    default: master
   theos-sdks:
     description: 'Where to clone the iOS SDKs from (git URL)'
     required: false
     default: 'https://github.com/theos/sdks'
+  theos-sdks-ref:
+    description: 'The branch, tag or SHA to get Theos sdks from'
+    required: false
+    default: master
   cache:
     description: 'Cache Theos installation for faster installation'
     required: false
@@ -32,8 +40,16 @@ runs:
     - id: information
       shell: bash
       run: |
-        echo "::set-output name=theos::`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`"
-        echo "::set-output name=theos-sdks::`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`"
+        echo "::set-output name=theos::`if [ ${{ inputs.theos-ref }} = "master" ]; then \
+            git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1; \
+          else \
+            echo ${{ inputs.theos-ref }}; \
+          fi`"
+        echo "::set-output name=theos-sdks::`if [ ${{ inputs.theos-sdks-ref }} = "master" ]; then \
+            git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1; \
+          else \
+            echo ${{ inputs.theos-sdks-ref }}; \
+          fi`"
         echo "::set-output name=theos-dir-basename::`basename ${{ inputs.theos-dir }}`"
         echo "::set-output name=darwin_version::`uname -r | cut -d'.' -f1 | tr -d '\n'`"
         
@@ -75,9 +91,11 @@ runs:
 
     - name: get theos (uncached)
       if: inputs.cache != 'true' || steps.theos-cache.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        git clone --recursive ${{ inputs.theos-src }} ${{ inputs.theos-dir }}
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ inputs.theos-src }}
+        ref: ${{ inputs.theos-ref }}
+        submodules: recursive
 
     - name: restore theos from cache
       if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'
@@ -96,7 +114,7 @@ runs:
       shell: bash
       run: |
         cd ${{ inputs.theos-dir }}/sdks
-        curl -sLO ${{ inputs.theos-sdks }}/archive/master.tar.gz
+        curl -sLO ${{ inputs.theos-sdks }}/archive/${{ inputs.theos-sdks-ref }}.tar.gz
         TMP=$(mktemp -d)
         tar -xf master.tar.gz -C $TMP
         mv $TMP/*-master/*.sdk ${{ inputs.theos-dir }}/sdks

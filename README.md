@@ -22,22 +22,33 @@ MAKE SURE YOU'RE USING THIS WITH A MACOS RUNNER!!! Linux support may be added if
     # This is where Theos is stored, relative to the runner workspace.
     # Default: ${{ github.workspace }}/theos
     theos-dir: ''
+
     # This is where Theos will be git cloned from. It must be a Git repository.
     # Default: https://github.com/theos/theos
     theos-src: ''
+
+    # The branch, tag or SHA to checkout Theos from.
+    theos-ref: ''
+
     # This is where the Theos SDKs will be downloaded from. It must be a GitHub URL.
     # Default: https://github.com/theos/sdks
     # However, you'll probably want to set this manually if you want to compile using newer frameworks, like iOS 13 or 14.
     theos-sdks: ''
+
+    # The branch, tag or SHA to get Theos SDKs from. 
+    theos-sdks-ref: ''
+
     # Cache Theos and its SDKs. They are only fetched again when a new commit is pushed to their repos
     # Default: true
-    cache:
+    cache: ''
+
     # Cache location for Theos
     # Default: /usr/local/opt/__theos_cache
-    cache-dir-theos:
+    cache-dir-theos: ''
+
     # Cache location for SDKs
     # Default: /usr/local/opt/__theos_sdks_cache
-    cache-dir-sdks:
+    cache-dir-sdks: ''
     
 ```
 
