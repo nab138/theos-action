@@ -95,7 +95,7 @@ runs:
       run: |
         git clone --recursive ${{ inputs.theos-src }} ${{ inputs.theos-dir }}
         cd ${{ inputs.theos-dir }}
-        git -C ${{ inputs.theos-dir }} checkout $(git -C ${{ inputs.theos-dir }} describe ${{ inputs.theos-ref }})
+        git -C ${{ inputs.theos-dir }} checkout ${{ inputs.theos-ref }}
 
     - name: restore theos from cache
       if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'
