@@ -104,11 +104,14 @@ runs:
       shell: bash
       run: |
         cd ${{ inputs.theos-dir }}/sdks
-        curl -sLO ${{ inputs.theos-sdks }}/archive/${{ inputs.theos-sdks-ref }}.tar.gz
         TMP=$(mktemp -d)
-        tar -xf ${{ inputs.theos-sdks-ref }}.tar.gz -C $TMP
-        mv $TMP/*-${{ inputs.theos-sdks-ref }}/*.sdk ${{ inputs.theos-dir }}/sdks
-        rm -r ${{ inputs.theos-sdks-ref }}.tar.gz $TMP
+        (
+          cd $TMP
+          wget -q --show-progress -O ${{ inputs.theos-sdks-ref }}.tar.gz ${{ inputs.theos-sdks }}/archive/${{ inputs.theos-sdks-ref }}.tar.gz
+          tar -xf ${{ inputs.theos-sdks-ref }}.tar.gz
+          mv *-${{ inputs.theos-sdks-ref }}/*.sdk ${{ inputs.theos-dir }}/sdks  
+        )
+        rm -rf $TMP
     
     - name: restore theos sdks from cache
       if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true'
