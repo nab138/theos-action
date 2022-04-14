@@ -53,14 +53,14 @@ runs:
         echo "::set-output name=theos-dir-basename::`basename ${{ inputs.theos-dir }}`"
         echo "::set-output name=darwin_version::`uname -r | cut -d'.' -f1 | tr -d '\n'`"
         
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       id: theos-cache
       if: inputs.cache == 'true'
       with:
         path: ${{ inputs.cache-dir-theos }}
         key: ${{ runner.os }}-${{ steps.information.outputs.theos }}-theos
     
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       id: theos-sdks-cache
       if: inputs.cache == 'true'
       with:
@@ -68,13 +68,6 @@ runs:
         key: ${{ runner.os }}-${{ steps.information.outputs.theos-sdks }}-theos
         
     - name: Install Theos dependencies
-      if: steps.information.outputs.darwin_version >= 20
-      uses: beerpiss/procursus-action@v1
-      with:
-        packages: ldid make
-        
-    - name: Install Theos dependencies
-      if: steps.information.outputs.darwin_version < 20
       shell: bash
       run: |
         brew install ldid make
@@ -83,10 +76,7 @@ runs:
       shell: bash
       run: |
         echo "THEOS=${{ inputs.theos-dir }}" >> $GITHUB_ENV
-        
-        if (( ${{ steps.information.outputs.darwin_version }} < 20 )); then
-          echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
-        fi
+        echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
           
 
     - name: get theos (uncached)
@@ -131,9 +121,7 @@ runs:
       shell: bash
       run: | 
         sudo rsync -alHh --inplace ${{ inputs.theos-dir }}/sdks ${{ inputs.cache-dir-sdks }}/
-        
     
-      
 
 branding:
   icon: download-cloud
