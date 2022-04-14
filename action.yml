@@ -107,7 +107,7 @@ runs:
         TMP=$(mktemp -d)
         (
           cd $TMP
-          wget -q --show-progress -O ${{ inputs.theos-sdks-ref }}.tar.gz ${{ inputs.theos-sdks }}/archive/${{ inputs.theos-sdks-ref }}.tar.gz
+          wget -q -O ${{ inputs.theos-sdks-ref }}.tar.gz ${{ inputs.theos-sdks }}/archive/${{ inputs.theos-sdks-ref }}.tar.gz
           tar -xf ${{ inputs.theos-sdks-ref }}.tar.gz
           mv *-${{ inputs.theos-sdks-ref }}/*.sdk ${{ inputs.theos-dir }}/sdks  
         )

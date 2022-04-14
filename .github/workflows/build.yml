@@ -4,7 +4,11 @@ on: [push]
 
 jobs:
   build:
-
+    strategy:
+      matrix:
+        cache: 
+        - true
+        - false
     runs-on: macos-latest
 
     steps:
@@ -17,7 +21,7 @@ jobs:
       # Don't use @main in production, this repo is specifically for testing it.
       uses: beerpiss/theos-action@main
       with:
-        cache: false
+        cache: ${{ matrix.cache }}
       
     - name: Build package
       run: |
@@ -25,7 +29,7 @@ jobs:
         make package FINALPACKAGE=1
  
     - name: Upload package
-      uses: actions/upload-artifact@v2.2.0
+      uses: actions/upload-artifact@v3
       with:
         name: 'Package'
         path: ${{ github.workspace }}/packages/*.deb
