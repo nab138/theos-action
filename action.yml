@@ -69,15 +69,33 @@ runs:
         
     - name: Install Theos dependencies
       shell: bash
+      if: runner.os == 'macOS'
       run: |
         brew install ldid make
+    
+    - name: Install Theos dependencies
+      shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        . /etc/lsb-release
+        sudo apt-get install -y build-essential fakeroot libtinfo5 libz3-dev rsync curl perl unzip git
+        brew install zstd
+        mkdir -p ${{ inputs.theos-dir }}/toolchain/linux/iphone ${{ inputs.theos-dir }}/toolchain/swift
+        TMP=$(mktemp -d)
+        (
+          cd $TMP
+          curl -L https://github.com/CRKatri/llvm-project/releases/download/swift-5.3.2-RELEASE/swift-5.3.2-RELEASE-ubuntu${DISTRIB_RELEASE}.tar.zst -o swift-5.3.2-RELEASE.tar.zst
+          tar -xvf swift-5.3.2-RELEASE.tar.zst
+          rsync -aWlHh --inplace swift-5.3.2-RELEASE*/* ${{ inputs.theos-dir }}/toolchain/linux/iphone
+        )
+        ln -s ${{ inputs.theos-dir }}/toolchain/linux/iphone ${{ inputs.theos-dir }}/toolchain/swift
+        rm -r $TMP
     
     - name: prepare environment
       shell: bash
       run: |
         echo "THEOS=${{ inputs.theos-dir }}" >> $GITHUB_ENV
         echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
-          
 
     - name: get theos (uncached)
       if: inputs.cache != 'true' || steps.theos-cache.outputs.cache-hit != 'true'

@@ -9,10 +9,13 @@ jobs:
         cache: 
         - true
         - false
-    runs-on: macos-latest
+        os:
+        - ubuntu-latest
+        - macos-latest
+    runs-on: ${{ runner.os }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         repository: Randomblock1/FleetsBGone
         submodules: true
