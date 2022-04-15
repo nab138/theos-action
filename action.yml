@@ -106,13 +106,13 @@ runs:
         git -C ${{ inputs.theos-dir }} checkout ${{ inputs.theos-ref }}
 
     - name: restore theos from cache
-      if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true'
+      if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true' && inputs.cache-dir-theos != inputs.theos-dir
       shell: bash
       run: |
         sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-theos }}/${{ steps.information.outputs.theos-dir-basename }}/ ${{ inputs.theos-dir }}
     
     - name: cache theos
-      if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit != 'true'
+      if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit != 'true' && inputs.cache-dir-theos != inputs.theos-dir
       shell: bash
       run: |
         sudo rsync -alHh --inplace ${{ inputs.theos-dir }} ${{ inputs.cache-dir-theos }}/
@@ -132,13 +132,13 @@ runs:
         rm -rf $TMP
     
     - name: restore theos sdks from cache
-      if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true'
+      if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true' && inputs.cache-dir-sdks != format('{0}/{1}', inputs.theos-dir, 'sdks')
       shell: bash
       run: |
         sudo rsync -aWlHh --inplace ${{ inputs.cache-dir-sdks }}/sdks ${{ inputs.theos-dir }}
    
     - name: cache sdks
-      if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit != 'true'
+      if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit != 'true' && inputs.cache-dir-sdks != format('{0}/{1}', inputs.theos-dir, 'sdks')
       shell: bash
       run: | 
         sudo rsync -alHh --inplace ${{ inputs.theos-dir }}/sdks ${{ inputs.cache-dir-sdks }}/

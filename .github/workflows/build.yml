@@ -1,6 +1,6 @@
 name: CI
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
@@ -25,6 +25,8 @@ jobs:
       uses: beerpiss/theos-action@main
       with:
         cache: ${{ matrix.cache }}
+        cache-dir-theos: ${{ github.workspace }}/theos
+        cache-dir-sdks: ${{ github.workspace }}/theos/sdks
       
     - name: Build package
       run: |
