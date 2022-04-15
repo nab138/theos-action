@@ -1,6 +1,11 @@
 name: CI
 
-on: [push, workflow_dispatch]
+on:
+  workflow_dispatch:
+  push:
+    paths:
+    - 'action.yml'
+    - '.github/workflows/build.yml'
 
 jobs:
   build:
