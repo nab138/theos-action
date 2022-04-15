@@ -7,6 +7,7 @@ Easily bootstraps Theos onto Actions runner, with caching for improved speed.
 [Theos](https://github.com/theos/theos) is a cross-platform building suite for iOS and MacOS. It's mainly used for developing and compiling jailbroken iOS tweaks for the iPhone/iPad.
 
 ## Usage
+Windows runners are not supported.
 
 ```yaml
 - uses: beerpiss/theos-action@v1  # The v1 tag refers to the latest update of major version 1 (currently 1.3.0)
