@@ -77,19 +77,8 @@ runs:
       shell: bash
       if: runner.os == 'Linux'
       run: |
-        . /etc/lsb-release
         sudo apt-get install -y build-essential fakeroot libtinfo5 libz3-dev rsync curl perl unzip git
         brew install zstd
-        mkdir -p ${{ inputs.theos-dir }}/toolchain/linux/iphone ${{ inputs.theos-dir }}/toolchain/swift
-        TMP=$(mktemp -d)
-        (
-          cd $TMP
-          curl -L https://github.com/CRKatri/llvm-project/releases/download/swift-5.3.2-RELEASE/swift-5.3.2-RELEASE-ubuntu${DISTRIB_RELEASE}.tar.zst -o swift-5.3.2-RELEASE.tar.zst
-          tar -xvf swift-5.3.2-RELEASE.tar.zst
-          rsync -aWlHh --inplace swift-5.3.2-RELEASE*/* ${{ inputs.theos-dir }}/toolchain/linux/iphone
-        )
-        ln -s ${{ inputs.theos-dir }}/toolchain/linux/iphone ${{ inputs.theos-dir }}/toolchain/swift
-        rm -r $TMP
     
     - name: prepare environment
       shell: bash
@@ -104,6 +93,22 @@ runs:
         git clone --recursive ${{ inputs.theos-src }} ${{ inputs.theos-dir }}
         cd ${{ inputs.theos-dir }}
         git -C ${{ inputs.theos-dir }} checkout ${{ inputs.theos-ref }}
+    
+    - name: get toolchain on linux
+      if: runner.os == 'Linux' && (inputs.cache != 'true' || steps.theos-cache.outputs.cache-hit != 'true')
+      shell: bash
+      run: |
+        . /etc/lsb-release
+        mkdir -p ${{ inputs.theos-dir }}/toolchain/linux/iphone ${{ inputs.theos-dir }}/toolchain/swift
+        TMP=$(mktemp -d)
+        (
+          cd $TMP
+          curl -sL https://github.com/CRKatri/llvm-project/releases/download/swift-5.3.2-RELEASE/swift-5.3.2-RELEASE-ubuntu${DISTRIB_RELEASE}.tar.zst -o swift-5.3.2-RELEASE.tar.zst
+          tar -xf swift-5.3.2-RELEASE.tar.zst
+          rsync -aWlHh --inplace swift-5.3.2-RELEASE*/* ${{ inputs.theos-dir }}/toolchain/linux/iphone
+        )
+        ln -s ${{ inputs.theos-dir }}/toolchain/linux/iphone ${{ inputs.theos-dir }}/toolchain/swift
+        rm -r $TMP
 
     - name: restore theos from cache
       if: inputs.cache == 'true' && steps.theos-cache.outputs.cache-hit == 'true' && inputs.cache-dir-theos != inputs.theos-dir
