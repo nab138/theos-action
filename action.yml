@@ -113,7 +113,7 @@ runs:
       shell: bash
       run: |
         rm -rf ${{ inputs.theos-dir }}/sdks/* 
-        curl -sL ${{ inputs.theos-sdks }}/archive/${{ inputs.theos-sdks-ref }}.tar.gz | tar -xf - --strip-components=1 -C ${{ inputs.theos-dir }}/sdks
+        curl -sL ${{ inputs.theos-sdks }}/archive/${{ inputs.theos-sdks-ref }}.tar.gz | tar -xzf - --strip-components=1 -C ${{ inputs.theos-dir }}/sdks
     
     - name: restore theos sdks from cache
       if: inputs.cache == 'true' && steps.theos-sdks-cache.outputs.cache-hit == 'true' && inputs.cache-dir-sdks != format('{0}/{1}', inputs.theos-dir, 'sdks')
