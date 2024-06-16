@@ -9,7 +9,7 @@ inputs:
   theos-src:
     description: 'Where to clone Theos itself from (git URL)'
     required: false
-    default: 'https://github.com/theos/theos'
+    default: 'https://github.com/nab138/theos'
   theos-ref:
     description: 'The branch, tag or SHA to clone Theos from'
     required: false
@@ -41,7 +41,7 @@ runs:
       shell: bash
       run: |
         echo "::set-output name=theos::`if [ ${{ inputs.theos-ref }} = "master" ]; then \
-            git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1; \
+            git ls-remote https://github.com/nab138/theos | head -n 1 | cut -f 1; \
           else \
             echo ${{ inputs.theos-ref }}; \
           fi`"
