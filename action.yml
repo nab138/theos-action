@@ -102,7 +102,7 @@ runs:
       run: |
         sudo rsync -alHh --inplace ${{ inputs.theos-dir }} ${{ inputs.cache-dir-theos }}/
     
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       id: theos-sdks-cache
       if: inputs.cache == 'true'
       with:
