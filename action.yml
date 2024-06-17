@@ -52,7 +52,7 @@ runs:
           fi`"
         echo "::set-output name=theos-dir-basename::`basename ${{ inputs.theos-dir }}`"
         
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       id: theos-cache
       if: inputs.cache == 'true'
       with:
